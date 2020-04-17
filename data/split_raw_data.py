@@ -1,8 +1,11 @@
+import os
+import os.path
+
 # Get the unique variable names from the raw data file
 
-filenames = {"control_pfc": "../raw_data/Hidden-Snow_1-2-2020--3-2-2020.csv",
-             "with_basil_pfc": "../raw_data/Aged-Shape_1-2-2020--3-2-2020.csv",
-             "blue_night_pfc": "../raw_data/Blue-Water_1-2-2020--3-2-2020.csv"}
+filenames = {"control_pfc": "../raw_data/Hidden-Snow_1-2-2020--04-08-2020.csv",
+             "with_basil_pfc": "../raw_data/Aged-Shape_1-2-2020--04-08-2020.csv",
+             "blue_night_pfc": "../raw_data/Blue-Water_1-2-2020--04-08-2020.csv"}
 
 # the file has the following columns: 
 # device,report_time,var,name,value,values
@@ -14,6 +17,12 @@ def genfilename(varname):
         return varname[0] + "_" + varname[1] + ".csv"
     else:
         return "Camera-Top.csv"
+
+def gendevicevarfile(deviceid, varname):
+    data_dir = os.path.join(".", deviceid)
+    if not os.path.isdir(data_dir):
+        os.makedirs(data_dir)
+    return os.path.join(data_dir, genfilename(varname))
 
 # First pass is we'll get all the var names
 
@@ -27,14 +36,14 @@ for file_key in filenames.keys():
         for line in f.readlines():
             linesplit = line.split(',')
             if [linesplit[2],linesplit[3]] not in varnames and linesplit[2] != 'var':
-                varnames.append([linesplit[2],linesplit[3]])
+                varnames.append([linesplit[2], linesplit[3]])
                 print("Found var name: " + linesplit[2] + " - " + linesplit[3])
 
     print ("Done finding vars")
 
     readings_files = {}
     for vn in varnames:
-      readings_files[genfilename(vn)] = open(file_key + "-" + genfilename(vn),'w')
+      readings_files[genfilename(vn)] = open(gendevicevarfile(file_key, vn), 'w')  # open(file_key + "-" + genfilename(vn),'w')
       readings_files[genfilename(vn)].write("variable,sensor_name,timestamp_utc,value,value_json\n")
 
     # loop through main raw data generating the new datafiles

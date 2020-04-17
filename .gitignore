@@ -1,2 +1,5 @@
 .idea
 /venv
+
+/timelapse/*.png
+/timelapse/*/*.png
